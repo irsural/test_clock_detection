@@ -26,20 +26,10 @@ def draw_templates(template: Template, image: MatLike) -> MatLike:
     )
     templ_copy = cv2.warpAffine(templ_img, mask, (templ_width, templ_height))
 
-    contours, hierarchy = cv2.findContours(
-        templ_copy, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE
-    )
+    contours, hierarchy = cv2.findContours(templ_copy, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     for i in range(len(contours)):
         cv2.drawContours(
-            image,
-            contours,
-            i,
-            (0, 0, 255),
-            1,
-            cv2.LINE_8,
-            hierarchy,
-            0,
-            offset=template.top_left,
+            image, contours, i, (0, 0, 255), 1, cv2.LINE_8, hierarchy, 0, offset=template.top_left
         )
 
     cv2.rectangle(

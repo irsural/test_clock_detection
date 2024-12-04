@@ -65,7 +65,7 @@ class AlgorithmDebugger(Debugger):
         :param image_name: имя изображения
         :return:
         """
-        assert image_name not in self.image_names, f"Файл {image_name} уже был сохранен"
+        assert image_name not in self.image_names, f'Файл {image_name} уже был сохранен'
         image_path = self._make_image_path(image_name)
         cv2.imwrite(image_path.as_posix(), image)
         self.count_files_in_folder += 1
@@ -88,12 +88,10 @@ class AlgorithmDebugger(Debugger):
         :param image_name: имя изображения
         :return: изображение
         """
-        assert image_name not in self.image_names, f"Файл {image_name} уже был сохранен"
+        assert image_name not in self.image_names, f'Файл {image_name} уже был сохранен'
         result_image = image.copy()
         if templates is not None:
-            result_image = self._draw_templates(
-                result_image, templates, device_angle_shift
-            )
+            result_image = self._draw_templates(result_image, templates, device_angle_shift)
         if lines is not None:
             result_image = self._draw_lines(result_image, lines, device_angle_shift)
         image_path = self._make_image_path(image_name)
@@ -108,7 +106,7 @@ class AlgorithmDebugger(Debugger):
             float(self.device_angle)
         except ValueError:
             raise ValueError(
-                self.device_angle, "Значение угла прибора не является числом"
+                self.device_angle, 'Значение угла прибора не является числом'
             ) from None
         return self.device_angle
 
@@ -116,13 +114,13 @@ class AlgorithmDebugger(Debugger):
         return self.debug_folder
 
     def _make_image_path(self, image_name: str) -> Path:
-        file_name = f"{self.count_files_in_folder}. {image_name}"
+        file_name = f'{self.count_files_in_folder}. {image_name}'
         self.image_names[image_name] = file_name
-        return self.debug_folder / f"{file_name}.bmp"
+        return self.debug_folder / f'{file_name}.bmp'
 
     def get_image_path(self, image_name: str) -> Path:
         file_name = self.image_names[image_name]
-        return self.debug_folder / f"{file_name}.bmp"
+        return self.debug_folder / f'{file_name}.bmp'
 
     @staticmethod
     def _draw_templates(
@@ -138,9 +136,7 @@ class AlgorithmDebugger(Debugger):
         return image_copy
 
     @staticmethod
-    def _draw_lines(
-        image: MatLike, lines: list[Line], device_angle_shift: float
-    ) -> MatLike:
+    def _draw_lines(image: MatLike, lines: list[Line], device_angle_shift: float) -> MatLike:
         image_copy = image.copy()
         if len(image_copy.shape) < 3:
             image_copy = cv2.cvtColor(image_copy, cv2.COLOR_GRAY2BGR)
@@ -179,4 +175,4 @@ class DummyDebugger(Debugger):
         return 0
 
     def get_debug_folder(self) -> Path:
-        return Path("")
+        return Path('')
