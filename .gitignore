@@ -1,0 +1,7 @@
+venv
+__pycache__
+/*.egg-info/
+scripts/.mypy_cashe
+scripts/__pycache__
+clock_detector_v2/__pycache__
+.idea
