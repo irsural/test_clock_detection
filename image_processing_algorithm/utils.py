@@ -1,4 +1,7 @@
 from dataclasses import dataclass
+from datetime import datetime
+import re
+
 import numpy as np
 from cv2.typing import MatLike, Point
 from typing_extensions import Self
@@ -81,3 +84,81 @@ class ClockTime:
         hours = int(clock_time_ms // 1000 // 60 // 60)
 
         return cls(hours=hours, minutes=minutes, seconds=seconds, ms=milliseconds)
+
+
+def check_result(
+    excepted_time_ms: datetime, result_time_ms: datetime, accuracy_sec: float
+) -> tuple[float, int]:
+    """
+    Проверяет успешность проведенного теста. Если разница между определенным и фактическим
+    временем на изображении составила больше **accuracy** сек, то такой результат
+    считается неудачным
+
+    :param excepted_time_ms: фактическое время на изображении
+    :param result_time_ms: определенное время алгоритмом
+    :param accuracy_sec: максимально допустимая погрешность
+    :return: разницу между фактическим и определенным временем и результат теста: 1 - если
+    удачный, 0 - если неудачный
+    """
+    delta = abs(excepted_time_ms - result_time_ms)
+    delta_sec = round(float(delta.total_seconds()), 1)
+
+    if delta_sec <= accuracy_sec:
+        return delta_sec, 1
+    else:
+        return delta_sec, 0
+
+
+RESULT_IMAGE_REGULAR = re.compile(
+    r'^(?P<error_status>[01]+)-(?P<error>\d+\.\d+)-(?P<detected_time>\d{2}:\d{2}:\d{2}\.\d{3})-'
+    r'(?P<excepted_time>\d{2}:\d{2}:\d{2}\.\d{3})-(?P<detected_clock_angle>\d+\.\d+)-'
+    r'(?P<real_clock_angle>\d+)$'
+)
+
+
+@dataclass
+class DetectTimeResult:
+    error_status: int
+    error_sec: float
+    detected_time: datetime
+    excepted_time: datetime
+    detected_clock_angle: float
+    real_clock_angle: float
+
+    def to_str(self) -> str:
+        """
+        Формирует строку из результатов алгоритма определения времени по аналоговым часам
+
+        :return: строку из результатов алгоритма определения времени
+        """
+
+        return (
+            f'{self.error_status}-{self.error_sec}-{self.detected_time.strftime("%H:%M:%S.%f")[:-3]}-'
+            f'{self.excepted_time.strftime("%H:%M:%S.%f")[:-3]}-'
+            f'{self.detected_clock_angle:.02f}-{self.real_clock_angle}'
+        )
+
+    @classmethod
+    def from_str(cls, result_of_algorithm: str) -> Self:
+        """
+        Проверяет строку на соответствие формату результатов алгоритма определения времени по
+        аналоговым часам.
+
+        :param result_of_algorithm: строка с результатами алгоритма определения времени по
+        аналоговым часам
+        :return: параметры результатов работы алгоритма определения времени по аналоговым часам
+        """
+
+        result_attr = RESULT_IMAGE_REGULAR.search(result_of_algorithm)
+        assert (
+            result_attr is not None
+        ), f'Строка: {result_of_algorithm} - не соответствует формату результатов алгоритма'
+
+        return cls(
+            error_status=int(result_attr.group('error_status')),
+            error_sec=float(result_attr.group('error')),
+            detected_time=datetime.strptime(result_attr.group('detected_time'), '%H:%M:%S.%f'),
+            excepted_time=datetime.strptime(result_attr.group('excepted_time'), '%H:%M:%S.%f'),
+            detected_clock_angle=float(result_attr.group('detected_clock_angle')),
+            real_clock_angle=float(result_attr.group('real_clock_angle')),
+        )
