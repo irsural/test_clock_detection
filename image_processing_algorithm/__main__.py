@@ -1,12 +1,15 @@
+import shutil
 from concurrent.futures.thread import ThreadPoolExecutor
 
 import cv2
 from image_processing_algorithm.algorithm_debugger import Debugger, DummyDebugger, AlgorithmDebugger
-from image_processing_algorithm.utils import Template, Line
+from image_processing_algorithm.utils import Template, Line, ClockTime, check_result, \
+    DetectTimeResult
 from pathlib import Path
+from datetime import datetime
 
 
-def image_processing(image_path: Path, debug_mode: None | Debugger = None) -> None:
+def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:
     debugger = debug_mode if debug_mode is not None else DummyDebugger()
 
     image = cv2.imread(image_path.as_posix(), cv2.IMREAD_COLOR)
@@ -48,23 +51,49 @@ def image_processing(image_path: Path, debug_mode: None | Debugger = None) -> No
         'Линия из центра изображения', image, 0, None, [line_1, line_2]
     )
 
+    result_time = ClockTime(hours=0, minutes=0, seconds=0, ms=0)
+    return result_time
+
+
+def run_test(image_path: Path, folder_for_results: Path, debug_folder: Path, accuracy_sec: int) -> None:
+
+    debug_folder_for_image = debug_folder / image_path.stem
+    debug_folder_for_image.mkdir(parents=True, exist_ok=True)
+
+    debugger = AlgorithmDebugger(debug_folder_for_image)
+
+    result_time = detect_time(image_path, debugger)
+    result_time_dt = datetime.strptime(result_time.__str__(), '%I:%M:%S.%f')
+    excepted_time_24h = datetime.strptime(image_path.stem, '%H:%M:%S.%f')
+    excepted_time_dt = datetime.strptime(excepted_time_24h.strftime('%I:%M:%S.%f'), '%I:%M:%S.%f')
+
+    delta_sec, error_status = check_result(excepted_time_dt, result_time_dt, accuracy_sec)
+
+    result = DetectTimeResult(
+        error_status, delta_sec, result_time_dt, excepted_time_dt, debugger.get_device_angle(), 0
+    ).to_str()
+
+    result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
+    result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
+    shutil.copy(result_algorithm_image_path, result_test_image_path)
+    print(f'{image_path.stem} : погрешность - {delta_sec}')  # noqa: T201
+
 
 def main() -> None:
-    path_to_images_dir = Path('Путь к папке с изображениями')
-    debug_folder = Path('Путь к папке с результатами')
+    path_to_images_dir = Path('../files/Изображения')
+    debug_folder = Path('../files/Результат')
 
     args_list = []
+    debug_folder_for_results = debug_folder / "Результаты"
+    debug_folder_for_results.mkdir(parents=True, exist_ok=True)
     for image_path in path_to_images_dir.glob('*.bmp'):
-        debug_folder_for_image = debug_folder / image_path.stem
-        debug_folder_for_image.mkdir(parents=True, exist_ok=True)
-        debugger = AlgorithmDebugger(debug_folder_for_image)
-        args_list.append((image_path, debugger))
+        args_list.append((image_path, debug_folder_for_results, debug_folder))
 
     assert len(args_list) > 0, 'В директории нет изображений с расширением .bmp'
 
     jobs = 1
     with ThreadPoolExecutor(max_workers=jobs) as executor:
-        executor.map(image_processing, *zip(*args_list, strict=False))
+        executor.map(run_test, *zip(*args_list, strict=False))
 
 
 if __name__ == '__main__':
