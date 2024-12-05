@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 from cv2.typing import MatLike, Point
+from typing_extensions import Self
 
 
 @dataclass
@@ -47,3 +48,36 @@ def polar_to_cartesian(
     y = round(center[1] - radius * np.sin(np.radians(angle_deg + angle_offset_deg)))
 
     return x, y
+
+
+@dataclass(kw_only=True)
+class ClockTime:
+    hours: int
+    minutes: int
+    seconds: int
+    ms: int
+
+    def __str__(self) -> str:
+        """
+        Форматирует строку в вид: чч:мм:сс.мс
+
+        :return: отформатированная строка
+        """
+        return f'{self.hours:02}:{self.minutes:02}:{self.seconds:02}.{self.ms:03}'
+
+    @classmethod
+    def from_ms(cls, clock_time_ms: float) -> Self:
+        """
+        Разбивает время в мс на часы, минуты, секунды и миллисекунды
+
+        :param clock_time_ms: время пройденное часами с начала видео
+        были пройти к заданному моменту
+        :return: значение времени приведенное к часам, минутам и секундам
+        """
+
+        milliseconds = int(clock_time_ms % 1000)
+        seconds = int((clock_time_ms // 1000) % 60)
+        minutes = int((clock_time_ms // 1000 // 60) % 60)
+        hours = int(clock_time_ms // 1000 // 60 // 60)
+
+        return cls(hours=hours, minutes=minutes, seconds=seconds, ms=milliseconds)
