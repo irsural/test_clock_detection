@@ -4,8 +4,13 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import cv2
 from image_processing_algorithm.algorithm_debugger import Debugger, DummyDebugger, AlgorithmDebugger
 from image_processing_algorithm.result_analysis import create_report_of_test
-from image_processing_algorithm.utils import Template, Line, ClockTime, check_result, \
-    DetectTimeResult
+from image_processing_algorithm.utils import (
+    Template,
+    Line,
+    ClockTime,
+    check_result,
+    DetectTimeResult,
+)
 from pathlib import Path
 from datetime import datetime
 
@@ -70,7 +75,9 @@ def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTi
     return result_time
 
 
-def _run_test_image(image_path: Path, folder_for_results: Path, debug_folder: Path, accuracy_sec: int) -> None:
+def _run_test_image(
+    image_path: Path, folder_for_results: Path, debug_folder: Path, accuracy_sec: int
+) -> None:
     """
     Запускает тестирование алгоритма определения времени для 1 изображения. Сохраняет результат в
     директорию *files/Результат/Результаты*.
@@ -98,7 +105,6 @@ def _run_test_image(image_path: Path, folder_for_results: Path, debug_folder: Pa
     result = DetectTimeResult(
         error_status, delta_sec, result_time_dt, excepted_time_dt, debugger.get_device_angle(), 0
     ).to_str()
-
     result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
     result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
     shutil.copy(result_algorithm_image_path, result_test_image_path)
@@ -129,7 +135,7 @@ def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
 
     max_accuracy_sec = 1
     args_list = []
-    debug_folder_for_results = debug_folder / "Результаты"
+    debug_folder_for_results = debug_folder / 'Результаты'
     debug_folder_for_results.mkdir(parents=True, exist_ok=True)
     for image_path in path_to_images_dir.glob('*.bmp'):
         args_list.append((image_path, debug_folder_for_results, debug_folder, max_accuracy_sec))
