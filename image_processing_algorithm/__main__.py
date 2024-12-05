@@ -12,7 +12,9 @@ from datetime import datetime
 
 def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:
     """
-    Скрипт определения времени на часах. 
+    Скрипт определения времени на часах.
+    Ниже приведены примеры как пользоваться дебагером, чтобы сохранять промежуточные результаты
+    работы алгоритма.
 
     :param image_path: путь к изображению часов
     :param debug_mode: режим отладки
