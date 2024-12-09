@@ -12,6 +12,7 @@ from image_processing_algorithm.utils import (
 )
 from pathlib import Path
 from datetime import datetime
+from image_processing_algorithm.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS
 
 
 def _run_test_image(
@@ -44,7 +45,9 @@ def _run_test_image(
         excepted_time_dt, result_time_dt, fail_threshold_seconds
     )
 
-    result = DetectTimeResult(success_detection, delta_sec, result_time_dt, excepted_time_dt).to_str()
+    result = DetectTimeResult(
+        success_detection, delta_sec, result_time_dt, excepted_time_dt
+    ).to_str()
 
     result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
     result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
@@ -78,19 +81,20 @@ def run_tests(data_folder: Path) -> None:
     final_results_folder.mkdir(parents=True, exist_ok=True)
 
     args_list = []
-    fail_threshold_seconds = 1
     for image_path in input_photos_folder.glob('*.bmp'):
-        args_list.append(
-            (image_path, final_results_folder, results_by_steps_folder, fail_threshold_seconds)
-        )
+        args_list.append((
+            image_path,
+            final_results_folder,
+            results_by_steps_folder,
+            FAIL_DELTA_THRESHOLD_SECONDS
+        ))
 
     assert len(args_list) > 0, f'В папке {input_photos_folder} нет изображений с расширением .bmp'
 
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         executor.map(_run_test_image, *zip(*args_list, strict=False))
 
-    list_accuracy = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    create_report_of_test(final_results_folder, list_accuracy)
+    create_report_of_test(final_results_folder, CALCULATED_ERRORS)
 
 
 def main() -> None:

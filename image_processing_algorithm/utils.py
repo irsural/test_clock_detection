@@ -111,8 +111,7 @@ def check_result(
 
 RESULT_IMAGE_REGULAR = re.compile(
     r'^(?P<error_status>[01]+)-(?P<error>\d+\.\d+)-(?P<detected_time>\d{2}:\d{2}:\d{2}\.\d{3})-'
-    r'(?P<excepted_time>\d{2}:\d{2}:\d{2}\.\d{3})-(?P<detected_clock_angle>\d+\.\d+)-'
-    r'(?P<real_clock_angle>\d+)$'
+    r'(?P<excepted_time>\d{2}:\d{2}:\d{2}\.\d{3})$'
 )
 
 
@@ -129,10 +128,10 @@ class DetectTimeResult:
 
         :return: строку из результатов алгоритма определения времени
         """
-
+        success_detection = 1 if self.success_detection else 0
         return (
-            f'{self.success_detection}-{self.error_sec}-{self.detected_time.strftime("%H:%M:%S.%f")[:-3]}-'
-            f'{self.excepted_time.strftime("%H:%M:%S.%f")[:-3]}-'
+            f'{success_detection}-{self.error_sec}-{self.detected_time.strftime("%H:%M:%S.%f")[:-3]}-'
+            f'{self.excepted_time.strftime("%H:%M:%S.%f")[:-3]}'
         )
 
     @classmethod
@@ -152,7 +151,7 @@ class DetectTimeResult:
         ), f'Строка: {result_of_algorithm} - не соответствует формату результатов алгоритма'
 
         return cls(
-            success_detection=int(result_attr.group('error_status')),
+            success_detection=result_attr.group('error_status'),
             error_sec=float(result_attr.group('error')),
             detected_time=datetime.strptime(result_attr.group('detected_time'), '%H:%M:%S.%f'),
             excepted_time=datetime.strptime(result_attr.group('excepted_time'), '%H:%M:%S.%f'),
