@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2
 
 from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
-from test_clock_detection.types import Template, Line, ClockTime
+from test_clock_detection.data_types import Template, Line, ClockTime
 
 
 def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:
@@ -20,16 +20,16 @@ def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTi
 
     image = cv2.imread(image_path.as_posix(), cv2.IMREAD_COLOR)
 
-    # Сохранение изображения
+    # Переводим изображение в оттенки серого
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     debugger.save_image('Серое изображение', image_gray)
 
-    # Создание изображения центра картинки
+    # Вырезаем из серого изображения центральную часть
     top_left_image_center = (image.shape[1] // 4, image.shape[0] // 4)
     bottom_right_image_center = (image.shape[1] // 4 + 300, image.shape[0] // 4 + 300)
     center_image = image_gray[
-        top_left_image_center[1] : bottom_right_image_center[1],
-        top_left_image_center[0] : bottom_right_image_center[0],
+        top_left_image_center[1]:bottom_right_image_center[1],
+        top_left_image_center[0]:bottom_right_image_center[0],
     ]
     # Сохранение изображения центра
     debugger.save_image('Центр изображения', center_image)
@@ -44,22 +44,14 @@ def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTi
         angle_deg=0,
     )
     # Отрисовка контуров центра картинки на оригинальном изображении
-    debugger.save_image_with_contours(
-        'Контур центра на изображении', image, 0, [center_templ], None
-    )
+    debugger.save_image_with_contours('Контур центра на изображении', image, [center_templ], None)
 
     # Создания экземпляров линий
     image_center = (315, 250)
     line_1 = Line('Цветная линяя', image_center, 90, 200)
     line_2 = Line('Цветная линяя', image_center, 210, 200)
     # Отрисовка линий на оригинальном изображении
-    debugger.save_image_with_contours(
-        'Линия из центра изображения', image, 0, None, [line_1, line_2]
-    )
-
-    # Сохранение угла поворота часов
-    clock_angle = 0
-    debugger.save_device_angle(clock_angle)
+    debugger.save_image_with_contours('Линия из центра изображения', image, None, [line_1, line_2])
 
     # Сохранение результата алгоритма определения времени
     result_time = ClockTime(hours=0, minutes=0, seconds=0, ms=0)

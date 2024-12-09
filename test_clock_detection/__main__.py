@@ -6,10 +6,8 @@ import multiprocessing
 from test_clock_detection.algorithm_debugger import AlgorithmDebugger
 from test_clock_detection.detect_time import detect_time
 from test_clock_detection.result_analysis import create_report_of_test
-from test_clock_detection.utils import (
-    check_result,
-)
-from test_clock_detection.types import DetectTimeResult
+from test_clock_detection.utils import check_result
+from test_clock_detection.data_types import DetectTimeResult
 from pathlib import Path
 from datetime import datetime
 from test_clock_detection.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS

@@ -1,7 +1,7 @@
 import cv2
 from cv2.typing import MatLike, Point
 
-from test_clock_detection.types import Template
+from test_clock_detection.data_types import Template
 
 
 def draw_templates(template: Template, image: MatLike) -> MatLike:
