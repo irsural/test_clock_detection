@@ -6,6 +6,7 @@ scripts/__pycache__
 clock_detector_v2/__pycache__
 .idea
 
+files/Результаты
 files/Изображения/*
 # Примеры
 !files/Изображения/02:01:56.432.bmp

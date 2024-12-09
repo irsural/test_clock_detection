@@ -47,10 +47,10 @@ def _run_test_image(
     result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
     result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
     shutil.copy(result_algorithm_image_path, result_test_image_path)
-    print(f'{image_path.stem} : погрешность - {delta_sec}')  # noqa: T201
+    print(f'{image_path.stem} : погрешность - {delta_sec}')
 
 
-def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
+def run_tests(data_folder: Path) -> None:
     """
     Запускает тестирование алгоритма определения времени по всем изображения, которые находятся в
     указанной директории.
@@ -66,18 +66,19 @@ def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
     В результате тестирования в консоли будет выведена таблица, содержащая столбцы: погрешность,
     процент изображений, уложившихся в погрешность и количество изображений, не уложившихся в
     погрешность
-
-    :param path_to_images_dir: путь до директории с изображениями с расширением .bmp
-    :param debug_folder: путь до директории для сохранения результатов
-    :return:
     """
 
-    max_accuracy_sec = 1
+    input_photos_folder = data_folder / 'Изображения'
+    results_by_steps_folder = data_folder / 'Результаты' / 'По шагам'
+    final_results_folder = data_folder / 'Результаты' / 'Окончательные'
+
+    results_by_steps_folder.mkdir(parents=True, exist_ok=True)
+    final_results_folder.mkdir(parents=True, exist_ok=True)
+
     args_list = []
-    debug_folder_for_results = debug_folder / 'Результаты'
-    debug_folder_for_results.mkdir(parents=True, exist_ok=True)
-    for image_path in path_to_images_dir.glob('*.bmp'):
-        args_list.append((image_path, debug_folder_for_results, debug_folder, max_accuracy_sec))
+    max_accuracy_sec = 1
+    for image_path in input_photos_folder.glob('*.bmp'):
+        args_list.append((image_path, final_results_folder, results_by_steps_folder, max_accuracy_sec))
 
     assert len(args_list) > 0, 'В директории нет изображений с расширением .bmp'
 
@@ -85,14 +86,12 @@ def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
         executor.map(_run_test_image, *zip(*args_list, strict=False))
 
     list_accuracy = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    create_report_of_test(debug_folder_for_results, list_accuracy)
+    create_report_of_test(final_results_folder, list_accuracy)
 
 
 def main() -> None:
     repo_root = Path(os.path.abspath(__file__)).parent.parent
-    path_to_images_dir = repo_root / 'files' / 'Изображения'
-    debug_folder = repo_root / 'files' / 'Результаты'
-    run_tests(path_to_images_dir, debug_folder)
+    run_tests(repo_root / 'files')
 
 
 if __name__ == '__main__':
