@@ -3,16 +3,16 @@ import os
 from concurrent.futures.thread import ThreadPoolExecutor
 import multiprocessing
 
-from image_processing_algorithm.algorithm_debugger import AlgorithmDebugger
-from image_processing_algorithm.detect_time import detect_time
-from image_processing_algorithm.result_analysis import create_report_of_test
-from image_processing_algorithm.utils import (
+from test_clock_detection.algorithm_debugger import AlgorithmDebugger
+from test_clock_detection.detect_time import detect_time
+from test_clock_detection.result_analysis import create_report_of_test
+from test_clock_detection.utils import (
     check_result,
     DetectTimeResult,
 )
 from pathlib import Path
 from datetime import datetime
-from image_processing_algorithm.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS
+from test_clock_detection.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS
 
 
 def _run_test_image(

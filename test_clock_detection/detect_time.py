@@ -2,8 +2,8 @@ from pathlib import Path
 
 import cv2
 
-from image_processing_algorithm.algorithm_debugger import Debugger, DummyDebugger
-from image_processing_algorithm.utils import ClockTime, Template, Line
+from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
+from test_clock_detection.utils import ClockTime, Template, Line
 
 
 def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:

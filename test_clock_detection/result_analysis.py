@@ -2,7 +2,7 @@ from pathlib import Path
 
 from tabulate import tabulate
 
-from image_processing_algorithm.utils import DetectTimeResult
+from test_clock_detection.utils import DetectTimeResult
 
 
 def _take_result_from_data(data_folder: Path) -> list[float]:

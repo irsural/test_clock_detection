@@ -5,8 +5,8 @@ from pathlib import Path
 import cv2
 from cv2.typing import MatLike
 
-from image_processing_algorithm.draw_image import draw_line, draw_templates
-from image_processing_algorithm.utils import Line, Template, polar_to_cartesian
+from test_clock_detection.draw_image import draw_line, draw_templates
+from test_clock_detection.utils import Line, Template, polar_to_cartesian
 
 
 class Debugger(ABC):
