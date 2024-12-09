@@ -8,6 +8,7 @@ from cv2.typing import MatLike
 from test_clock_detection.draw_image import draw_line, draw_templates
 from test_clock_detection.utils import polar_to_cartesian
 from test_clock_detection.data_types import Template, Line
+from test_clock_detection.const import PHOTO_EXTENSION
 
 
 class Debugger(ABC):
@@ -92,11 +93,11 @@ class AlgorithmDebugger(Debugger):
     def _make_image_path(self, image_name: str) -> Path:
         file_name = f'{self.count_files_in_folder}. {image_name}'
         self.image_names[image_name] = file_name
-        return self.debug_folder / f'{file_name}.bmp'
+        return self.debug_folder / f'{file_name}.{PHOTO_EXTENSION}'
 
     def get_image_path(self, image_name: str) -> Path:
         file_name = self.image_names[image_name]
-        return self.debug_folder / f'{file_name}.bmp'
+        return self.debug_folder / f'{file_name}.{PHOTO_EXTENSION}'
 
     @staticmethod
     def _draw_templates(image: MatLike, templates: list[Template]) -> MatLike:

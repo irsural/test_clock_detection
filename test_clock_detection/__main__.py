@@ -10,7 +10,11 @@ from test_clock_detection.utils import check_result
 from test_clock_detection.data_types import DetectTimeResult
 from pathlib import Path
 from datetime import datetime
-from test_clock_detection.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS
+from test_clock_detection.const import (
+    FAIL_DELTA_THRESHOLD_SECONDS,
+    CALCULATED_ERRORS,
+    PHOTO_EXTENSION
+)
 
 
 def _run_test_image(
@@ -48,7 +52,7 @@ def _run_test_image(
     ).to_str()
 
     result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
-    result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
+    result_test_image_path = Path(f'{folder_for_results}/{result}.{PHOTO_EXTENSION}')
     shutil.copy(result_algorithm_image_path, result_test_image_path)
     print(f'{image_path.stem} : погрешность - {delta_sec}')
 
@@ -79,7 +83,7 @@ def run_tests(data_folder: Path) -> None:
     final_results_folder.mkdir(parents=True, exist_ok=True)
 
     args_list = []
-    for image_path in input_photos_folder.glob('*.bmp'):
+    for image_path in input_photos_folder.glob(f'*.{PHOTO_EXTENSION}'):
         args_list.append((
             image_path,
             final_results_folder,
@@ -87,7 +91,9 @@ def run_tests(data_folder: Path) -> None:
             FAIL_DELTA_THRESHOLD_SECONDS
         ))
 
-    assert len(args_list) > 0, f'В папке {input_photos_folder} нет изображений с расширением .bmp'
+    assert len(args_list) > 0, (
+        f'В папке {input_photos_folder} нет изображений с расширением .{PHOTO_EXTENSION}'
+    )
 
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         executor.map(_run_test_image, *zip(*args_list, strict=False))

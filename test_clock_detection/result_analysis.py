@@ -3,6 +3,7 @@ from pathlib import Path
 from tabulate import tabulate
 
 from test_clock_detection.data_types import DetectTimeResult
+from test_clock_detection.const import PHOTO_EXTENSION
 
 
 def _take_result_from_data(data_folder: Path) -> list[float]:
@@ -14,7 +15,7 @@ def _take_result_from_data(data_folder: Path) -> list[float]:
     """
 
     test_results = []
-    for image in data_folder.glob('*.bmp'):
+    for image in data_folder.glob(f'*.{PHOTO_EXTENSION}'):
         image_name = image.stem
         result = DetectTimeResult.from_str(image_name)
         test_results.append(result.error_sec)
