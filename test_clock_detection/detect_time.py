@@ -3,7 +3,7 @@ from pathlib import Path
 import cv2
 
 from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
-from test_clock_detection.utils import ClockTime, Template, Line
+from test_clock_detection.types import Template, Line, ClockTime
 
 
 def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:

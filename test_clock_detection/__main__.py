@@ -8,8 +8,8 @@ from test_clock_detection.detect_time import detect_time
 from test_clock_detection.result_analysis import create_report_of_test
 from test_clock_detection.utils import (
     check_result,
-    DetectTimeResult,
 )
+from test_clock_detection.types import DetectTimeResult
 from pathlib import Path
 from datetime import datetime
 from test_clock_detection.const import FAIL_DELTA_THRESHOLD_SECONDS, CALCULATED_ERRORS
@@ -37,7 +37,7 @@ def _run_test_image(
     debugger = AlgorithmDebugger(debug_folder_for_image)
     result_time = detect_time(image_path, debugger)
 
-    result_time_dt = datetime.strptime(result_time.__str__(), '%H:%M:%S.%f')
+    result_time_dt = datetime.strptime(str(result_time), '%H:%M:%S.%f')
     excepted_time_24h = datetime.strptime(image_path.stem, '%H:%M:%S.%f')
     excepted_time_dt = datetime.strptime(excepted_time_24h.strftime('%I:%M:%S.%f'), '%I:%M:%S.%f')
 
