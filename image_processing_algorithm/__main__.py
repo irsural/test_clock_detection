@@ -78,7 +78,6 @@ def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
     debug_folder_for_results.mkdir(parents=True, exist_ok=True)
     for image_path in path_to_images_dir.glob('*.bmp'):
         args_list.append((image_path, debug_folder_for_results, debug_folder, max_accuracy_sec))
-        _run_test_image(image_path, debug_folder_for_results, debug_folder, max_accuracy_sec)
 
     assert len(args_list) > 0, 'В директории нет изображений с расширением .bmp'
 
