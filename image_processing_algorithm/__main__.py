@@ -15,7 +15,7 @@ from datetime import datetime
 
 
 def _run_test_image(
-    image_path: Path, folder_for_results: Path, debug_folder: Path, accuracy_sec: int
+    image_path: Path, folder_for_results: Path, debug_folder: Path, fail_threshold_seconds: float
 ) -> None:
     """
     Запускает тестирование алгоритма определения времени для 1 изображения. Сохраняет результат в
@@ -25,7 +25,8 @@ def _run_test_image(
     :param image_path: путь до изображения
     :param folder_for_results: путь для сохранения промежуточных этапов алгоритма только для тестируемого изображения
     :param debug_folder: путь до общей папки для сохранения итогового результата
-    :param accuracy_sec: предел максимальной допустимой погрешности
+    :param fail_threshold_seconds: максимальное отклонение от реального значения, после которого
+      определение времени считается неудачным. Задается в секундах
     :return:
     """
 
@@ -33,17 +34,18 @@ def _run_test_image(
     debug_folder_for_image.mkdir(parents=True, exist_ok=True)
 
     debugger = AlgorithmDebugger(debug_folder_for_image)
-
     result_time = detect_time(image_path, debugger)
+
     result_time_dt = datetime.strptime(result_time.__str__(), '%H:%M:%S.%f')
     excepted_time_24h = datetime.strptime(image_path.stem, '%H:%M:%S.%f')
     excepted_time_dt = datetime.strptime(excepted_time_24h.strftime('%I:%M:%S.%f'), '%I:%M:%S.%f')
 
-    delta_sec, error_status = check_result(excepted_time_dt, result_time_dt, accuracy_sec)
+    delta_sec, success_detection = check_result(
+        excepted_time_dt, result_time_dt, fail_threshold_seconds
+    )
 
-    result = DetectTimeResult(
-        error_status, delta_sec, result_time_dt, excepted_time_dt, debugger.get_device_angle(), 0
-    ).to_str()
+    result = DetectTimeResult(success_detection, delta_sec, result_time_dt, excepted_time_dt).to_str()
+
     result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
     result_test_image_path = Path(f'{folder_for_results}/{result}.bmp')
     shutil.copy(result_algorithm_image_path, result_test_image_path)
@@ -76,11 +78,13 @@ def run_tests(data_folder: Path) -> None:
     final_results_folder.mkdir(parents=True, exist_ok=True)
 
     args_list = []
-    max_accuracy_sec = 1
+    fail_threshold_seconds = 1
     for image_path in input_photos_folder.glob('*.bmp'):
-        args_list.append((image_path, final_results_folder, results_by_steps_folder, max_accuracy_sec))
+        args_list.append(
+            (image_path, final_results_folder, results_by_steps_folder, fail_threshold_seconds)
+        )
 
-    assert len(args_list) > 0, 'В директории нет изображений с расширением .bmp'
+    assert len(args_list) > 0, f'В папке {input_photos_folder} нет изображений с расширением .bmp'
 
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         executor.map(_run_test_image, *zip(*args_list, strict=False))
