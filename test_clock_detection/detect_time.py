@@ -6,12 +6,16 @@ from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
 from test_clock_detection.data_types import Template, Line, ClockTime
 
 
-def detect_time(image_path: Path, debug_mode: None | Debugger = None) -> ClockTime:
+def detect_time(
+    root_folder: Path, image_path: Path, debug_mode: None | Debugger = None
+) -> ClockTime:
     """
     Скрипт определения времени на часах.
     Ниже приведены примеры как пользоваться дебагером, чтобы сохранять промежуточные результаты
     работы алгоритма.
 
+    :param image_path: корневая папка проекта. Может быть полезна для загрузки дополнительных
+      артефактов работы алгоритма, например шаблонов стрелок и т. д.
     :param image_path: путь к изображению часов
     :param debug_mode: режим отладки
     :return: время на часах в формате чч:мм:сс.мс

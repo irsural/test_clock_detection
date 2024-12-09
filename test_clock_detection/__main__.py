@@ -18,13 +18,18 @@ from test_clock_detection.const import (
 
 
 def _run_test_image(
-    image_path: Path, folder_for_results: Path, debug_folder: Path, fail_threshold_seconds: float
+    root_folder: str,
+    image_path: Path,
+    folder_for_results: Path,
+    debug_folder: Path,
+    fail_threshold_seconds: float
 ) -> None:
     """
     Запускает тестирование алгоритма определения времени для 1 изображения. Сохраняет результат в
     директорию *files/Результат/Результаты*.
     Выводит в консоль имя файла и получившуюся погрешность при определении времени алгоритмом.
 
+    :param root_folder: корневая папка проекта
     :param image_path: путь до изображения
     :param folder_for_results: путь для сохранения промежуточных этапов алгоритма только для тестируемого изображения
     :param debug_folder: путь до общей папки для сохранения итогового результата
@@ -37,7 +42,7 @@ def _run_test_image(
     debug_folder_for_image.mkdir(parents=True, exist_ok=True)
 
     debugger = AlgorithmDebugger(debug_folder_for_image)
-    result_time = detect_time(image_path, debugger)
+    result_time = detect_time(root_folder, image_path, debugger)
 
     result_time_dt = datetime.strptime(str(result_time), '%H:%M:%S.%f')
     excepted_time_24h = datetime.strptime(image_path.stem, '%H:%M:%S.%f')
@@ -57,7 +62,7 @@ def _run_test_image(
     print(f'{image_path.stem} : погрешность - {delta_sec}')
 
 
-def run_tests(data_folder: Path) -> None:
+def run_tests(root_folder: Path) -> None:
     """
     Запускает тестирование алгоритма определения времени по всем изображения, которые находятся в
     указанной директории.
@@ -75,6 +80,7 @@ def run_tests(data_folder: Path) -> None:
     погрешность
     """
 
+    data_folder = root_folder / 'files'
     input_photos_folder = data_folder / 'Изображения'
     results_by_steps_folder = data_folder / 'Результаты' / 'По шагам'
     final_results_folder = data_folder / 'Результаты' / 'Окончательные'
@@ -85,6 +91,7 @@ def run_tests(data_folder: Path) -> None:
     args_list = []
     for image_path in input_photos_folder.glob(f'*.{PHOTO_EXTENSION}'):
         args_list.append((
+            root_folder,
             image_path,
             final_results_folder,
             results_by_steps_folder,
@@ -103,7 +110,7 @@ def run_tests(data_folder: Path) -> None:
 
 def main() -> None:
     repo_root = Path(os.path.abspath(__file__)).parent.parent
-    run_tests(repo_root / 'files')
+    run_tests(repo_root)
 
 
 if __name__ == '__main__':
