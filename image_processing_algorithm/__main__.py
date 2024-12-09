@@ -1,4 +1,5 @@
 import shutil
+import os
 from concurrent.futures.thread import ThreadPoolExecutor
 import multiprocessing
 
@@ -89,9 +90,9 @@ def run_tests(path_to_images_dir: Path, debug_folder: Path) -> None:
 
 
 def main() -> None:
-    repo_root = Path('..')
-    path_to_images_dir = repo_root / 'Изображения'
-    debug_folder = repo_root / 'Результат'
+    repo_root = Path(os.path.abspath(__file__)).parent.parent
+    path_to_images_dir = repo_root / 'files' / 'Изображения'
+    debug_folder = repo_root / 'files' / 'Результаты'
     run_tests(path_to_images_dir, debug_folder)
 
 
