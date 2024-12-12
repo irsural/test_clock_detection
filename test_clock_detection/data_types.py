@@ -21,6 +21,18 @@ class Template:
 
 
 @dataclass
+class MatchResultLine:
+    """Данные о совпадении секундной стрелки на изображении"""
+
+    match_value: int
+    """ Результат совпадения, чем больше значение, тем лучше результат """
+    arrow_start: Point
+    """ Координаты начала стрелки """
+    angle_deg: float
+    """ Угол поворота стрелки в градусах """
+
+
+@dataclass
 class Line:
     """Данные о линии"""
 

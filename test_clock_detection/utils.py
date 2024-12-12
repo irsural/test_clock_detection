@@ -43,5 +43,3 @@ def check_result(
         return delta_sec, True
     else:
         return delta_sec, False
-
-
