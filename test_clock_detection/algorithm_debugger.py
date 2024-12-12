@@ -20,12 +20,7 @@ class Debugger(ABC):
         pass
 
     @abstractmethod
-    def save_image_with_lines(
-        self,
-        image_name: str,
-        image: MatLike,
-        lines: list[Line],
-    ) -> None:
+    def save_image_with_lines(self, image_name: str, image: MatLike, lines: list[Line]) -> None:
         pass
 
     @abstractmethod
@@ -59,12 +54,7 @@ class AlgorithmDebugger(Debugger):
         cv2.imwrite(image_path.as_posix(), image)
         self.count_files_in_folder += 1
 
-    def save_image_with_lines(
-        self,
-        image_name: str,
-        image: MatLike,
-        lines: list[Line],
-    ) -> None:
+    def save_image_with_lines(self, image_name: str, image: MatLike, lines: list[Line]) -> None:
         """
         Сохраняет изображение с выделенными контурами шаблонов и линий
 
@@ -113,12 +103,7 @@ class DummyDebugger(Debugger):
     def save_image(self, image_name: str, image: MatLike) -> None:
         pass
 
-    def save_image_with_lines(
-        self,
-        image_name: str,
-        image: MatLike,
-        lines: list[Line],
-    ) -> None:
+    def save_image_with_lines(self, image_name: str, image: MatLike, lines: list[Line]) -> None:
         pass
 
     def get_debug_folder(self) -> Path:
