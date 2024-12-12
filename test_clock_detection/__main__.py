@@ -56,7 +56,7 @@ def _run_test_image(
         success_detection, delta_sec, result_time_dt, excepted_time_dt
     ).to_str()
 
-    result_algorithm_image_path = debugger.get_image_path('Контур центра на изображении')
+    result_algorithm_image_path = debugger.get_image_path('Линия из центра изображения')
     result_test_image_path = Path(f'{folder_for_results}/{result}.{PHOTO_EXTENSION}')
     shutil.copy(result_algorithm_image_path, result_test_image_path)
     print(f'{image_path.stem} : погрешность - {delta_sec}')
