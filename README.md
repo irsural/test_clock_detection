@@ -16,7 +16,7 @@ python3 -m pip install '.'
 python3 -m test_clock_detection
 ```
 
-Из среды разработки запускать файл **test_clock_detection/__main__.py**
+Из среды разработки запускать файл **test_clock_detection/\_\_main\_\_.py**
 
 
 # Структура
