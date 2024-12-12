@@ -6,7 +6,7 @@ from cv2.typing import MatLike
 
 from test_clock_detection.const import PHOTO_EXTENSION
 from test_clock_detection.data_types import Line
-from test_clock_detection.draw_image import draw_line, draw_templates
+from test_clock_detection.draw_image import draw_line
 from test_clock_detection.utils import polar_to_cartesian
 
 
