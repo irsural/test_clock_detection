@@ -1,9 +1,86 @@
 from pathlib import Path
 
 import cv2
+import numpy as np
 
 from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
 from test_clock_detection.data_types import Template, Line, ClockTime
+from cv2.typing import MatLike, Point
+from test_clock_detection.utils import polar_to_cartesian
+from test_clock_detection.data_types import MatchResultLine
+
+
+def _find_line(
+    src_image: MatLike,
+    image_center: Point,
+    angle_step_deg: float,
+    min_len_line_pix: int,
+    max_len_line_pix: int,
+    color: tuple[int, int, int, int],
+) -> list[MatchResultLine]:
+    """
+    Проверяет пиксели на белый цвет вокруг заданного центра. В месте с наибольшим количеством
+    заданного цвета находится секундная стрелка
+
+    :param src_image: черно-белое изображение циферблата
+    :param image_center: координаты центра циферблата
+    :param angle_step_deg: шаг поиска стрелки
+    :param max_len_line_pix: максимальная длина искомой линии
+    :param min_len_line_pix: минимальная длина искомой линии
+    :param color: цвет в формате RGBA
+    :return: параметры найденной секундной стрелки
+    """
+    match_result = []
+
+    max_steps_angle = int(360 // angle_step_deg)
+    for theta in np.linspace(start=0, stop=360, num=max_steps_angle):
+        color_pixels = 0
+        for radius in range(min_len_line_pix, max_len_line_pix):
+            x, y = polar_to_cartesian(theta, radius, image_center, 90)
+
+            try:
+                if all(src_image[y][x] == color):
+                    color_pixels += 1
+            except IndexError:
+                continue
+
+        match_result.append(
+            MatchResultLine(
+                match_value=color_pixels, angle_deg=theta, arrow_start=image_center
+            )
+        )
+
+    return match_result
+
+def _find_3_best_lines(
+    src_image: MatLike,
+    image_center: Point,
+    angle_step_deg: float,
+    min_len_line_pix: int,
+    max_len_line_pix: int,
+    color: tuple[int, int, int, int],
+    ) -> list[Line]:
+    """
+    Поиск 3-х лучших цветных линий исходящий из заданного центра изображения
+
+    :param src_image: изображение в формате BGRA
+    :param image_center: с
+    :param angle_step_deg:
+    :param min_len_line_pix: минимальная длина линии
+    :param max_len_line_pix: максимальная длина линии
+    :param color: цвет линии
+    :return: список с 3 лучшими совпадениями линий
+    """
+    match_result = _find_line(src_image, image_center, angle_step_deg, min_len_line_pix, max_len_line_pix, color)
+    match_result.sort(reverse=True, key=lambda x: x.match_value)
+
+    lines = []
+    for index, match in enumerate(match_result[:3]):
+        lines.append(Line(name=f'{index + 1} линяя',
+                          line_start=match.arrow_start,
+                          angle_deg=match.angle_deg,
+                          len_line=max_len_line_pix))
+    return lines
 
 
 def detect_time(
@@ -27,28 +104,6 @@ def detect_time(
     # Переводим изображение в оттенки серого
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     debugger.save_image('Серое изображение', image_gray)
-
-    # Вырезаем из серого изображения центральную часть
-    top_left_image_center = (image.shape[1] // 4, image.shape[0] // 4)
-    bottom_right_image_center = (image.shape[1] // 4 + 300, image.shape[0] // 4 + 300)
-    center_image = image_gray[
-        top_left_image_center[1]:bottom_right_image_center[1],
-        top_left_image_center[0]:bottom_right_image_center[0],
-    ]
-    # Сохранение изображения центра
-    debugger.save_image('Центр изображения', center_image)
-
-    # Обработка для лучшего выделения контуров
-    center_templ_image_canny = cv2.Canny(center_image, 100, 200)
-    # Создание экземпляра шаблона для отрисовки его контуров
-    center_templ = Template(
-        name='Центр изображения',
-        image=center_templ_image_canny,
-        top_left=top_left_image_center,
-        angle_deg=0,
-    )
-    # Отрисовка контуров центра картинки на оригинальном изображении
-    debugger.save_image_with_contours('Контур центра на изображении', image, [center_templ], None)
 
     # Создания экземпляров линий
     image_center = (315, 250)
