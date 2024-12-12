@@ -5,7 +5,7 @@ import cv2
 from cv2.typing import MatLike
 
 from test_clock_detection.const import PHOTO_EXTENSION
-from test_clock_detection.data_types import Line, Template
+from test_clock_detection.data_types import Line
 from test_clock_detection.draw_image import draw_line, draw_templates
 from test_clock_detection.utils import polar_to_cartesian
 
@@ -20,12 +20,11 @@ class Debugger(ABC):
         pass
 
     @abstractmethod
-    def save_image_with_contours(
+    def save_image_with_lines(
         self,
         image_name: str,
         image: MatLike,
-        templates: list[Template] | None = None,
-        lines: list[Line] | None = None,
+        lines: list[Line],
     ) -> None:
         pass
 
@@ -60,28 +59,23 @@ class AlgorithmDebugger(Debugger):
         cv2.imwrite(image_path.as_posix(), image)
         self.count_files_in_folder += 1
 
-    def save_image_with_contours(
+    def save_image_with_lines(
         self,
         image_name: str,
         image: MatLike,
-        templates: list[Template] | None = None,
-        lines: list[Line] | None = None,
+        lines: list[Line],
     ) -> None:
         """
         Сохраняет изображение с выделенными контурами шаблонов и линий
 
         :param image: изображение
-        :param templates: список шаблонов
         :param lines:
         :param image_name: имя изображения
         :return: изображение
         """
         assert image_name not in self.image_names, f'Файл {image_name} уже был сохранен'
         result_image = image.copy()
-        if templates is not None:
-            result_image = self._draw_templates(result_image, templates)
-        if lines is not None:
-            result_image = self._draw_lines(result_image, lines)
+        result_image = self._draw_lines(result_image, lines)
         image_path = self._make_image_path(image_name)
         cv2.imwrite(image_path.as_posix(), result_image)
         self.count_files_in_folder += 1
@@ -97,15 +91,6 @@ class AlgorithmDebugger(Debugger):
     def get_image_path(self, image_name: str) -> Path:
         file_name = self.image_names[image_name]
         return self.debug_folder / f'{file_name}.{PHOTO_EXTENSION}'
-
-    @staticmethod
-    def _draw_templates(image: MatLike, templates: list[Template]) -> MatLike:
-        image_copy = image.copy()
-        if len(image_copy.shape) < 3:
-            image_copy = cv2.cvtColor(image_copy, cv2.COLOR_GRAY2BGR)
-        for template in templates:
-            draw_templates(template, image_copy)
-        return image_copy
 
     @staticmethod
     def _draw_lines(image: MatLike, lines: list[Line]) -> MatLike:
@@ -128,12 +113,11 @@ class DummyDebugger(Debugger):
     def save_image(self, image_name: str, image: MatLike) -> None:
         pass
 
-    def save_image_with_contours(
+    def save_image_with_lines(
         self,
         image_name: str,
         image: MatLike,
-        templates: list[Template] | None = None,
-        lines: list[Line] | None = None,
+        lines: list[Line],
     ) -> None:
         pass
 

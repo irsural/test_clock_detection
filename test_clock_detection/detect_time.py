@@ -113,8 +113,8 @@ def detect_time(
     image_gray_rgba = cv2.cvtColor(image_gray, cv2.COLOR_GRAY2BGRA)
     best_lines = _find_best_lines(image_gray_rgba, image_center, 1, 0, 200, (255, 255, 255, 255))
     # Отрисовка линий на оригинальном изображении
-    debugger.save_image_with_contours(
-        'Линия из центра изображения', image_gray_rgba, None, best_lines
+    debugger.save_image_with_lines(
+        'Линия из центра изображения', image_gray_rgba, best_lines
     )
 
     # Сохранение результата алгоритма определения времени
