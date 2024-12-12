@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
-from dataclasses import field
 from pathlib import Path
 
 import cv2
 from cv2.typing import MatLike
 
+from test_clock_detection.const import PHOTO_EXTENSION
+from test_clock_detection.data_types import Line, Template
 from test_clock_detection.draw_image import draw_line, draw_templates
 from test_clock_detection.utils import polar_to_cartesian
-from test_clock_detection.data_types import Template, Line
-from test_clock_detection.const import PHOTO_EXTENSION
 
 
 class Debugger(ABC):

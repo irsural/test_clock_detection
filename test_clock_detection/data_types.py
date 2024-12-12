@@ -1,9 +1,9 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing_extensions import Self
 
 from cv2.typing import MatLike, Point
+from typing_extensions import Self
 
 
 @dataclass

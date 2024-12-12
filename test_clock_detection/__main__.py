@@ -1,20 +1,20 @@
-import shutil
-import os
-from concurrent.futures.thread import ThreadPoolExecutor
 import multiprocessing
+import os
+import shutil
+from concurrent.futures.thread import ThreadPoolExecutor
+from datetime import datetime
+from pathlib import Path
 
 from test_clock_detection.algorithm_debugger import AlgorithmDebugger
+from test_clock_detection.const import (
+    CALCULATED_ERRORS,
+    FAIL_DELTA_THRESHOLD_SECONDS,
+    PHOTO_EXTENSION,
+)
+from test_clock_detection.data_types import DetectTimeResult
 from test_clock_detection.detect_time import detect_time
 from test_clock_detection.result_analysis import create_report_of_test
 from test_clock_detection.utils import check_result
-from test_clock_detection.data_types import DetectTimeResult
-from pathlib import Path
-from datetime import datetime
-from test_clock_detection.const import (
-    FAIL_DELTA_THRESHOLD_SECONDS,
-    CALCULATED_ERRORS,
-    PHOTO_EXTENSION
-)
 
 
 def _run_test_image(
@@ -22,7 +22,7 @@ def _run_test_image(
     image_path: Path,
     folder_for_results: Path,
     debug_folder: Path,
-    fail_threshold_seconds: float
+    fail_threshold_seconds: float,
 ) -> None:
     """
     Запускает тестирование алгоритма определения времени для 1 изображения. Сохраняет результат в
@@ -31,7 +31,8 @@ def _run_test_image(
 
     :param root_folder: корневая папка проекта
     :param image_path: путь до изображения
-    :param folder_for_results: путь для сохранения промежуточных этапов алгоритма только для тестируемого изображения
+    :param folder_for_results: путь для сохранения промежуточных этапов алгоритма только для
+    тестируемого изображения
     :param debug_folder: путь до общей папки для сохранения итогового результата
     :param fail_threshold_seconds: максимальное отклонение от реального значения, после которого
       определение времени считается неудачным. Задается в секундах
@@ -68,7 +69,8 @@ def run_tests(root_folder: Path) -> None:
     указанной директории.
     Результаты различных этапов алгоритма каждого изображения находятся в папке:
     *files/Результат/Имя тестируемого изображения*
-    Итоговый результат алгоритма по всех изображениям находится в папке: *files/Результат/Результаты*
+    Итоговый результат алгоритма по всех изображениям находится в папке:
+    *files/Результат/Окончательные*
 
     Формат имени файла с итоговым результатом через дефис: уложилась ли погрешность в максимальную
     погрешность, погрешность алгоритма, определенное алгоритмом время, действительное время на
@@ -95,12 +97,12 @@ def run_tests(root_folder: Path) -> None:
             image_path,
             final_results_folder,
             results_by_steps_folder,
-            FAIL_DELTA_THRESHOLD_SECONDS
+            FAIL_DELTA_THRESHOLD_SECONDS,
         ))
 
-    assert len(args_list) > 0, (
-        f'В папке {input_photos_folder} нет изображений с расширением .{PHOTO_EXTENSION}'
-    )
+    assert (
+        len(args_list) > 0
+    ), f'В папке {input_photos_folder} нет изображений с расширением .{PHOTO_EXTENSION}'
 
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
         executor.map(_run_test_image, *zip(*args_list, strict=False))

@@ -2,12 +2,11 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from cv2.typing import MatLike, Point
 
 from test_clock_detection.algorithm_debugger import Debugger, DummyDebugger
-from test_clock_detection.data_types import Template, Line, ClockTime
-from cv2.typing import MatLike, Point
+from test_clock_detection.data_types import ClockTime, Line, MatchResultLine
 from test_clock_detection.utils import polar_to_cartesian
-from test_clock_detection.data_types import MatchResultLine
 
 
 def _find_line(
@@ -45,12 +44,11 @@ def _find_line(
                 continue
 
         match_result.append(
-            MatchResultLine(
-                match_value=color_pixels, angle_deg=theta, arrow_start=image_center
-            )
+            MatchResultLine(match_value=color_pixels, angle_deg=theta, arrow_start=image_center)
         )
 
     return match_result
+
 
 def _find_best_lines(
     src_image: MatLike,
@@ -59,7 +57,7 @@ def _find_best_lines(
     min_len_line_pix: int,
     max_len_line_pix: int,
     color: tuple[int, int, int, int],
-    ) -> list[Line]:
+) -> list[Line]:
     """
     Поиск 3-х лучших цветных линий исходящий из заданного центра изображения
 
@@ -71,15 +69,21 @@ def _find_best_lines(
     :param color: цвет линии
     :return: список с 3 лучшими совпадениями линий
     """
-    match_result = _find_line(src_image, image_center, angle_step_deg, min_len_line_pix, max_len_line_pix, color)
+    match_result = _find_line(
+        src_image, image_center, angle_step_deg, min_len_line_pix, max_len_line_pix, color
+    )
     match_result.sort(reverse=True, key=lambda x: x.match_value)
 
     lines = []
     for index, match in enumerate(match_result[:3]):
-        lines.append(Line(name=f'{index + 1} линяя',
-                          line_start=match.arrow_start,
-                          angle_deg=match.angle_deg,
-                          len_line=max_len_line_pix))
+        lines.append(
+            Line(
+                name=f'{index + 1} линяя',
+                line_start=match.arrow_start,
+                angle_deg=match.angle_deg,
+                len_line=max_len_line_pix,
+            )
+        )
     return lines
 
 
@@ -109,7 +113,9 @@ def detect_time(
     image_gray_rgba = cv2.cvtColor(image_gray, cv2.COLOR_GRAY2BGRA)
     best_lines = _find_best_lines(image_gray_rgba, image_center, 1, 0, 200, (255, 255, 255, 255))
     # Отрисовка линий на оригинальном изображении
-    debugger.save_image_with_contours('Линия из центра изображения', image_gray_rgba, None, best_lines)
+    debugger.save_image_with_contours(
+        'Линия из центра изображения', image_gray_rgba, None, best_lines
+    )
 
     # Сохранение результата алгоритма определения времени
     result_time = ClockTime(hours=0, minutes=0, seconds=0, ms=0)

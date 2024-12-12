@@ -2,8 +2,8 @@ from pathlib import Path
 
 from tabulate import tabulate
 
-from test_clock_detection.data_types import DetectTimeResult
 from test_clock_detection.const import PHOTO_EXTENSION
+from test_clock_detection.data_types import DetectTimeResult
 
 
 def _take_result_from_data(data_folder: Path) -> list[float]:
