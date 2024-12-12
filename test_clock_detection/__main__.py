@@ -18,7 +18,7 @@ from test_clock_detection.const import (
 
 
 def _run_test_image(
-    root_folder: str,
+    root_folder: Path,
     image_path: Path,
     folder_for_results: Path,
     debug_folder: Path,
