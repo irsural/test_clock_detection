@@ -52,7 +52,7 @@ def _find_line(
 
     return match_result
 
-def _find_3_best_lines(
+def _find_best_lines(
     src_image: MatLike,
     image_center: Point,
     angle_step_deg: float,
@@ -64,8 +64,8 @@ def _find_3_best_lines(
     Поиск 3-х лучших цветных линий исходящий из заданного центра изображения
 
     :param src_image: изображение в формате BGRA
-    :param image_center: с
-    :param angle_step_deg:
+    :param image_center: центр изображения
+    :param angle_step_deg: шаг поиска линии
     :param min_len_line_pix: минимальная длина линии
     :param max_len_line_pix: максимальная длина линии
     :param color: цвет линии
@@ -101,16 +101,15 @@ def detect_time(
 
     image = cv2.imread(image_path.as_posix(), cv2.IMREAD_COLOR)
 
-    # Переводим изображение в оттенки серого
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     debugger.save_image('Серое изображение', image_gray)
 
-    # Создания экземпляров линий
+    # Поиск линий на изображении
     image_center = (315, 250)
-    line_1 = Line('Цветная линяя', image_center, 90, 200)
-    line_2 = Line('Цветная линяя', image_center, 210, 200)
+    image_gray_rgba = cv2.cvtColor(image_gray, cv2.COLOR_GRAY2BGRA)
+    best_lines = _find_best_lines(image_gray_rgba, image_center, 1, 0, 200, (255, 255, 255, 255))
     # Отрисовка линий на оригинальном изображении
-    debugger.save_image_with_contours('Линия из центра изображения', image, None, [line_1, line_2])
+    debugger.save_image_with_contours('Линия из центра изображения', image_gray_rgba, None, best_lines)
 
     # Сохранение результата алгоритма определения времени
     result_time = ClockTime(hours=0, minutes=0, seconds=0, ms=0)
