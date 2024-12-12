@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Self
+from typing_extensions import Self
 
 from cv2.typing import MatLike, Point
 
@@ -75,7 +75,7 @@ RESULT_IMAGE_REGULAR = re.compile(
 
 @dataclass
 class DetectTimeResult:
-    success_detection: bool
+    success_detection: int
     error_sec: float
     detected_time: datetime
     excepted_time: datetime
@@ -109,7 +109,7 @@ class DetectTimeResult:
         ), f'Строка: {result_of_algorithm} - не соответствует формату результатов алгоритма'
 
         return cls(
-            success_detection=result_attr.group('error_status'),
+            success_detection=int(result_attr.group('error_status')),
             error_sec=float(result_attr.group('error')),
             detected_time=datetime.strptime(result_attr.group('detected_time'), '%H:%M:%S.%f'),
             excepted_time=datetime.strptime(result_attr.group('excepted_time'), '%H:%M:%S.%f'),
