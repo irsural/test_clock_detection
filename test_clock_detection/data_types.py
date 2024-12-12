@@ -7,20 +7,6 @@ from typing_extensions import Self
 
 
 @dataclass
-class Template:
-    """Данные о шаблонах"""
-
-    name: str
-    """ Имя Шаблона """
-    image: MatLike
-    """ Изображение шаблона """
-    top_left: Point
-    """ Координата левого-верхнего угла """
-    angle_deg: float
-    """ Угол поворота шаблона в градусах """
-
-
-@dataclass
 class MatchResultLine:
     """Данные о совпадении секундной стрелки на изображении"""
 

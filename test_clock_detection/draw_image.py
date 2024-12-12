@@ -1,8 +1,6 @@
 import cv2
 from cv2.typing import MatLike, Point
 
-from test_clock_detection.data_types import Template
-
 
 def draw_line(image: MatLike, start_line: Point, end_line: Point) -> MatLike:
     """
