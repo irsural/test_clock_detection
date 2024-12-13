@@ -84,7 +84,8 @@ def _find_best_lines(
             for line in lines:
                 if abs(line.angle_deg - match.angle_deg) < 30:
                     correct_angle_diff = False
-            if not correct_angle_diff: continue
+            if not correct_angle_diff:
+                continue
         lines.append(
             Line(
                 name=f'{index + 1} линяя',
