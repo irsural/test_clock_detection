@@ -59,7 +59,8 @@ def _find_best_lines(
     color: tuple[int, int, int, int],
 ) -> list[Line]:
     """
-    Поиск 3-х лучших цветных линий исходящий из заданного центра изображения
+    Поиск 3-х лучших цветных линий исходящий из заданного центра изображения, разница углов между
+    которыми превышает 30 градусов
 
     :param src_image: изображение в формате BGRA
     :param image_center: центр изображения
@@ -74,8 +75,16 @@ def _find_best_lines(
     )
     match_result.sort(reverse=True, key=lambda x: x.match_value)
 
-    lines = []
-    for index, match in enumerate(match_result[:3]):
+    lines: list[Line] = []
+    count_lines = 0
+    lines_angles: list[float] = []
+    for index, match in enumerate(match_result):
+        if index != 0:
+            correct_angle_diff = True
+            for line in lines:
+                if abs(line.angle_deg - match.angle_deg) < 30:
+                    correct_angle_diff = False
+            if not correct_angle_diff: continue
         lines.append(
             Line(
                 name=f'{index + 1} линяя',
@@ -84,6 +93,10 @@ def _find_best_lines(
                 len_line=max_len_line_pix,
             )
         )
+        lines_angles.append(match.angle_deg)
+        count_lines += 1
+        if count_lines == 3:
+            break
     return lines
 
 
